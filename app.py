@@ -60,4 +60,4 @@ def download_image(name):
     return send_from_directory(app.config['DOWNLOAD_FOLDER'],name)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=False)
