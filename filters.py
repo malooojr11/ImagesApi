@@ -1,6 +1,7 @@
-from flask import Blueprint, request, redirect, url_for, jsonify
-from helpers import get_secure_filename_filepath
+from flask import Blueprint, request, redirect, url_for, jsonify, current_app
+from helpers import get_secure_filename_filepath, download_from_s3
 from PIL import Image, ImageFilter, ImageEnhance
+import os
 
 bp = Blueprint('filters', __name__, url_prefix='/filters')
 
@@ -10,9 +11,10 @@ def blur():
     filename, filepath = get_secure_filename_filepath(filename)
     try:
         radius = float(request.json["radius"])
-        image = Image.open(filepath)
+        file_stream = download_from_s3(filename)
+        image = Image.open(file_stream)
         out = image.filter(ImageFilter.GaussianBlur(radius=radius))
-        out.save(filepath)
+        out.save(os.path.join(current_app.config["DOWNLOAD_FOLDER"], filename))
         return redirect(url_for("download_image", name=filename))
 
     except FileNotFoundError:
@@ -24,9 +26,10 @@ def contrast():
     filename, filepath = get_secure_filename_filepath(filename)
     try:
         factor = float(request.json["factor"])
-        image = Image.open(filepath)
+        file_stream = download_from_s3(filename)
+        image = Image.open(file_stream)
         out = ImageEnhance.Contrast(image=image).enhance(factor)
-        out.save(filepath)
+        out.save(os.path.join(current_app.config["DOWNLOAD_FOLDER"], filename))
         return redirect(url_for("download_image", name=filename))
 
     except FileNotFoundError:
@@ -38,9 +41,10 @@ def brightness():
     filename, filepath = get_secure_filename_filepath(filename)
     try:
         factor = float(request.json["factor"])
-        image = Image.open(filepath)
+        file_stream = download_from_s3(filename)
+        image = Image.open(file_stream)
         out = ImageEnhance.Brightness(image=image).enhance(factor)
-        out.save(filepath)
+        out.save(os.path.join(current_app.config["DOWNLOAD_FOLDER"], filename))
         return redirect(url_for("download_image", name=filename))
 
     except FileNotFoundError:
