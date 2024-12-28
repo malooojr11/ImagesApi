@@ -29,7 +29,7 @@ app.config["ALLOWED_EXTENSIONS"] = ALLOWED_EXTENSIONS
 
 @app.route("/")
 def index():
-    jsonify({'message':'Welcome to image api'})
+    return jsonify({'message':'Welcome to image api'})
 
 
 @app.route("/images", methods=[ "GET","POST"])
